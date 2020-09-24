@@ -1,7 +1,9 @@
-sudo: required
 language: generic
+os:
+  - linux
+dist: xenial
 services: docker
 before_install:
-  - docker build -t sashazahnitko/react-test -f Dockerfile.dev ./exercise-tracker-client
+  - docker build -t sashazahnitko/react-test -f ./exercise-tracker-client/Dockerfile.dev ./exercise-tracker-client
 script:
   - docker run -e CI=true sashazahnitko/react-test npm test -- -- coverage
