@@ -6,4 +6,10 @@ services: docker
 before_install:
   - docker build -t sashazahnitko/react-test -f ./exercise-tracker-client/Dockerfile.dev ./exercise-tracker-client
 script:
-  - docker run -e CI=true sashazahnitko/react-test npm test -- -- coverage
+  - docker run -e CI=true sashazahnitko/react-test npm test -- --coverage
+after_success:
+  - docker build -t sashazahnitko/exercise-tracker-client ./exercise-tracker-client
+  - docker build -t sashazahnitko/exercise-tracker-nginx ./nginx
+  - echo "$DOCKER_PASSWORD" | docker login "$DOCKER_ID" --password-stdin
+  - docker push sashazahnitko/exercise-tracker-client
+  - docker push sashazahnitko/exercise-tracker-nginx
