@@ -1,0 +1,26 @@
+language: generic
+os:
+  - linux
+dist: xenial
+services: docker
+before_install:
+  - docker build -t sashazahnitko/react-test -f ./exercise-tracker-client/Dockerfile.dev ./exercise-tracker-client
+script:
+  - docker run -e CI=true sashazahnitko/react-test npm test -- --coverage
+after_success:
+  - docker build -t sashazahnitko/exercise-tracker-client ./exercise-tracker-client
+  - docker build -t sashazahnitko/exercise-tracker-nginx ./nginx
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push sashazahnitko/exercise-tracker-client
+  - docker push sashazahnitko/exercise-tracker-nginx
+deploy:
+  provider: elasticbeanstalk
+  region: "ap-southeast-2"
+  app: "exercise-tracker"
+  env: "ExerciseTracker-env"
+  bucket: "elasticbeanstalk-ap-southeast-2-675952489560"
+  bucket-path: "exercise-tracker"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
