@@ -10,6 +10,6 @@ script:
 after_success:
   - docker build -t sashazahnitko/exercise-tracker-client ./exercise-tracker-client
   - docker build -t sashazahnitko/exercise-tracker-nginx ./nginx
-  - echo "$DOCKER_PASSWORD" | docker login "$DOCKER_ID" --password-stdin
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push sashazahnitko/exercise-tracker-client
   - docker push sashazahnitko/exercise-tracker-nginx
