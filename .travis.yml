@@ -9,9 +9,11 @@ script:
   - docker run -e CI=true sashazahnitko/react-test npm test -- --coverage
 after_success:
   - docker build -t sashazahnitko/exercise-tracker-client ./exercise-tracker-client
+  - docker build -t sashazahnitko/exercise-tracker-server ./server
   - docker build -t sashazahnitko/exercise-tracker-nginx ./nginx
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   - docker push sashazahnitko/exercise-tracker-client
+  - docker push sashazahnitko/exercise-tracker-server
   - docker push sashazahnitko/exercise-tracker-nginx
 deploy:
   provider: elasticbeanstalk

@@ -2,6 +2,7 @@ version: "3"
 services:
   nginx:
     depends_on:
+      - api
       - client
     restart: always
     build:
@@ -17,3 +18,10 @@ services:
     volumes:
       - /app/node_modules
       - ./exercise-tracker-client:/app
+  api:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    volumes:
+      - ./app/node_modules
+      - ./server:/app

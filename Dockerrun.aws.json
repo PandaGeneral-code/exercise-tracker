@@ -9,6 +9,13 @@
       "memory": 128
     },
     {
+      "name": "server",
+      "image": "sashazahnitko/exercise-tracker-server",
+      "hostname": "api",
+      "essential": false,
+      "memory": 128
+    },
+    {
       "name": "nginx",
       "image": "sashazahnitko/exercise-tracker-nginx",
       "hostname": "nginx",
@@ -19,7 +26,7 @@
           "containerPort": 80
         }
       ],
-      "links": ["client"],
+      "links": ["client", "server"],
       "memory": 128
     }
   ]
