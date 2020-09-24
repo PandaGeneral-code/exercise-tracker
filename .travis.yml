@@ -19,7 +19,7 @@ deploy:
   app: "exercise-tracker"
   env: "ExerciseTracker-env"
   bucket: "elasticbeanstalk-ap-southeast-2-675952489560"
-  bucket-path: "exercise-tracker"
+  bucket_path: "exercise-tracker"
   on:
     branch: master
   access_key_id: $AWS_ACCESS_KEY
