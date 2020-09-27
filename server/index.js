@@ -2,20 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const keys = require("./keys");
+const { connect, pgClient } = require("./utils/db");
+
+const exerciseRoutes = require("./routes/exercises");
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-
-const { Pool } = require("pg");
-const pgClient = new Pool({
-  user: keys.pgUser,
-  host: keys.pgHost,
-  database: keys.pgDatabase,
-  password: keys.pgPassword,
-  port: keys.pgPort,
-});
 
 app.get("/values", async (req, res) => {
   pgClient.query(`SELECT * FROM values;`, (err, results) => {
@@ -28,7 +21,6 @@ app.get("/values", async (req, res) => {
 
 app.post("/values", (req, res) => {
   const value = req.body.value;
-  console.log(req.body);
   pgClient.query(
     `INSERT INTO values (number) 
     VALUES ($1)
@@ -46,24 +38,19 @@ app.post("/values", (req, res) => {
   );
 });
 
-app.get("/", (req, res) => res.status(200).json({ message: "Done" }));
+app.use("/exercises", exerciseRoutes);
 
-setTimeout(() => {
-  pgClient.connect((err, client) => {
-    if (err) {
-      return console.log("Could not connect to the database");
-    }
-    client.query(
-      `CREATE TABLE IF NOT EXISTS values (number INT)`,
-      (err, result) => {
-        if (err) {
-          return console.log(
-            "Could not establish a connection with the database. Please try again later."
-          );
-        }
-        console.log("Tables set up.");
-        app.listen(5000, () => console.log(`Listening on port 5000...`));
-      }
-    );
-  });
-}, 1000);
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.status(err.status || 500).json({ data: err.data, message: err.message });
+});
+
+pgClient.connect((err, client) => {
+  if (err) {
+    console.log("could not connect to the database. Trying again...");
+    client.connect();
+  }
+  console.log("Connected to the database.");
+  client.on("error", () => client.connect());
+  app.listen(5000, () => console.log("Listening on port 5000..."));
+});

@@ -23,19 +23,6 @@ export const Home = () => {
     }
   };
 
-  const handleTestFetch = async () => {
-    try {
-      const response = await axios.get("/api/");
-      if (response.status === 200) {
-        setMessage(() => response.data.message);
-      } else {
-        throw new Error("Could not fetch the message");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const handleTestFinish = async (values) => {
     console.log(values);
     try {
@@ -61,9 +48,6 @@ export const Home = () => {
           Back to Root
         </Button>
       </Link>
-      <Button danger onClick={handleTestFetch} type="dashed">
-        Fetch from API
-      </Button>
       <Button onClick={handleFetchFromTheDatabase} type="primary">
         Fetch from the database
       </Button>
