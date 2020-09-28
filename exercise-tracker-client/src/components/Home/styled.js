@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: ${(props) => props.rootHeight}px;
   overflow-x: hidden;
   overflow-y: auto;
 `;
