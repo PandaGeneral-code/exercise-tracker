@@ -48,11 +48,12 @@ export const Home = () => {
   }, [fetchMuscleGroups]);
 
   useEffect(() => {
-    setTestHeight(() => wrapperRef.current.getBoundingClientRect().height);
+    console.log(window.innerHeight);
+    setTestHeight(() => window.innerHeight);
   }, []);
 
   return (
-    <Wrapper ref={wrapperRef}>
+    <Wrapper rootHeight={testHeight}>
       <Spin spinning={sectionsLoading.muscleGroups}>
         <MuscleGroupsContainer rootHeight={testHeight}>
           <Button
