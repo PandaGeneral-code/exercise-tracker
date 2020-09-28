@@ -1,69 +1,73 @@
-import axios from "axios";
-import { Button, Form, Input } from "antd";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Button, Spin, Table } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { Wrapper } from "./styled";
+import { AddMuscleGroupDrawer } from "./drawers/AddMuscleGroupDrawer";
+import { setMuscleGroups } from "../../store/modules/exerciseData";
+import { MuscleGroupsSection, Wrapper } from "./styled";
+import { getMuscleGroups } from "../../utils/databaseHelpers";
+
+const columns = [
+  {
+    dataIndex: "muscle_group_name",
+    key: "muscleGroupName",
+    sorter: (a, b) => a.muscle_group_name.localeCompare(b.muscle_group_name),
+    title: "Muscle Group",
+  },
+  { dataIndex: "muscle_group_alias", key: "muscleGroupAlias", title: "Alias" },
+];
 
 export const Home = () => {
-  const [form] = Form.useForm();
-  const [data, setData] = useState([]);
-  const [message, setMessage] = useState(null);
+  const dispatch = useDispatch();
+  const { muscleGroups } = useSelector((state) => state.exerciseData);
+  const [sectionsLoading, setSectionsLoading] = useState({
+    muscleGroups: false,
+  });
+  const [visibleDrawers, setVisibleDrawers] = useState({
+    addMuscleGroup: false,
+  });
 
-  const handleFetchFromTheDatabase = async () => {
-    try {
-      const response = await axios.get("/api/values");
-      if (response.status === 200) {
-        setData(() => response.data.data);
-      } else {
-        throw new Error("Could not fetch the message");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const fetchMuscleGroups = useCallback(async () => {
+    const response = await getMuscleGroups();
+    dispatch(setMuscleGroups(response.data.muscleGroups));
+    setSectionsLoading((sectionsLoading) => ({
+      ...sectionsLoading,
+      muscleGroups: false,
+    }));
+  }, [dispatch]);
 
-  const handleTestFinish = async (values) => {
-    console.log(values);
-    try {
-      const response = await axios.post("/api/values", { value: values.value });
-      if (response.status === 201) {
-        console.log(response);
-      } else {
-        throw new Error("Could not create the test value.");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleTestSave = () => {
-    form.submit();
-  };
+  useEffect(() => {
+    fetchMuscleGroups();
+  }, [fetchMuscleGroups]);
 
   return (
     <Wrapper>
-      <Link to="/">
-        <Button danger type="primary">
-          Back to Root
-        </Button>
-      </Link>
-      <Button onClick={handleFetchFromTheDatabase} type="primary">
-        Fetch from the database
+      <Button
+        onClick={() =>
+          setVisibleDrawers((visibleDrawers) => ({
+            ...visibleDrawers,
+            addMuscleGroup: true,
+          }))
+        }
+        type="primary"
+      >
+        Add Muscle Group
       </Button>
-      <Form form={form} onFinish={handleTestFinish}>
-        <Form.Item
-          label="Please enter a test value"
-          name="value"
-          rules={[{ message: "Please enter a test value", required: true }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item>
-          <Button onClick={handleTestSave}>Save</Button>
-        </Form.Item>
-      </Form>
-      <pre>{JSON.stringify({ data, message }, null, 2)}</pre>
+      <MuscleGroupsSection>
+        <Spin spinning={sectionsLoading.muscleGroups}>
+          <Table
+            columns={columns}
+            dataSource={muscleGroups.map((group) => ({
+              ...group,
+              key: group.muscle_group_id,
+            }))}
+            pagination={false}
+          />
+        </Spin>
+        <AddMuscleGroupDrawer
+          controlProps={{ visibleDrawers, setVisibleDrawers }}
+        />
+      </MuscleGroupsSection>
     </Wrapper>
   );
 };

@@ -4,15 +4,15 @@ const addNewExercise = async (req, res, next) => {
   const {
     exerciseName,
     exerciseDescription,
-    exerciseAreasOfEffect,
+    exerciseMuscleGroups,
     exerciseRating,
   } = req.body;
   try {
     const response = await pgClient.query(
-      `INSERT INTO exercises (exercise_name, exercise_description, exercise_areas_of_effect, exercise_rating)
+      `INSERT INTO exercises (exercise_name, exercise_description, exercise_muscle_groups, exercise_rating)
       VALUES ($1, $2, $3, $4)
       RETURNING *`,
-      [exerciseName, exerciseDescription, exerciseAreasOfEffect, exerciseRating]
+      [exerciseName, exerciseDescription, exerciseMuscleGroups, exerciseRating]
     );
     res.status(201).json({
       exercise: response.rows[0],
@@ -34,13 +34,13 @@ const editExercise = async (req, res, next) => {
   const {
     exerciseName,
     exerciseDescription,
-    exerciseAreasOfEffect,
+    exerciseMuscleGroups,
     exerciseRating,
   } = req.body;
   try {
     const response = await pgClient.query(
       `UPDATE exercises
-      SET exercise_name = $2, exercise_description = $3, exercise_areas_of_effect = $4, exercise_rating = $5
+      SET exercise_name = $2, exercise_description = $3, exercise_muscle_groups = $4, exercise_rating = $5
       WHERE exercise_id = $1
       RETURNING *`,
       [exerciseId, "edited", "also edited", 3, [1, 4, 5]]
@@ -60,7 +60,7 @@ const editExercise = async (req, res, next) => {
 const getAllExercises = async (req, res, next) => {
   try {
     const response = await pgClient.query(
-      `SELECT exercise_id, exercise_name, exercise_description, exercise_areas_of_effect, exercise_rating
+      `SELECT exercise_id, exercise_name, exercise_description, exercise_muscle_groups, exercise_rating
     FROM exercises`
     );
     res.status(200).json({ exercises: response.rows });

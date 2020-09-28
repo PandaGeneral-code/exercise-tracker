@@ -2,9 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const { connect, pgClient } = require("./utils/db");
+const { pgClient } = require("./utils/db");
 
 const exerciseRoutes = require("./routes/exercises");
+const muscleRoutes = require("./routes/muscles");
 
 const app = express();
 app.use(cors());
@@ -39,6 +40,7 @@ app.post("/values", (req, res) => {
 });
 
 app.use("/exercises", exerciseRoutes);
+app.use("/muscles", muscleRoutes);
 
 app.use((err, req, res, next) => {
   console.log(err);
