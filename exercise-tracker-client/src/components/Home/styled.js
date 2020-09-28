@@ -1,16 +1,16 @@
 import styled from "styled-components";
 
-export const MuscleGroupsSection = styled.div`
-  border: 1px solid green;
+export const MuscleGroupsContainer = styled.div`
+  border: 1px solid red;
   box-sizing: border-box;
-  height: 33%;
-  overflow-x: hidden;
+  height: ${(props) => props.rootHeight}px;
   overflow-y: auto;
 `;
 
 export const Wrapper = styled.div`
-  border: 1px solid red;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;

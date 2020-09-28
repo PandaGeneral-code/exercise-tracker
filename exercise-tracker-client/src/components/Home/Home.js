@@ -1,10 +1,10 @@
-import { Button, Spin, Table } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import { Button, Spin } from "antd";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { AddMuscleGroupDrawer } from "./drawers/AddMuscleGroupDrawer";
 import { setMuscleGroups } from "../../store/modules/exerciseData";
-import { MuscleGroupsSection, Wrapper } from "./styled";
+import { MuscleGroupsContainer, Wrapper } from "./styled";
 import { getMuscleGroups } from "../../utils/databaseHelpers";
 
 const columns = [
@@ -19,6 +19,7 @@ const columns = [
 
 export const Home = () => {
   const dispatch = useDispatch();
+  const wrapperRef = useRef();
   const { muscleGroups } = useSelector((state) => state.exerciseData);
   const [sectionsLoading, setSectionsLoading] = useState({
     muscleGroups: false,
@@ -27,7 +28,13 @@ export const Home = () => {
     addMuscleGroup: false,
   });
 
+  const [testHeight, setTestHeight] = useState(100);
+
   const fetchMuscleGroups = useCallback(async () => {
+    setSectionsLoading((sectionsLoading) => ({
+      ...sectionsLoading,
+      muscleGroups: true,
+    }));
     const response = await getMuscleGroups();
     dispatch(setMuscleGroups(response.data.muscleGroups));
     setSectionsLoading((sectionsLoading) => ({
@@ -40,34 +47,97 @@ export const Home = () => {
     fetchMuscleGroups();
   }, [fetchMuscleGroups]);
 
+  useEffect(() => {
+    setTestHeight(() => wrapperRef.current.getBoundingClientRect().height);
+  }, []);
+
   return (
-    <Wrapper>
-      <Button
-        onClick={() =>
-          setVisibleDrawers((visibleDrawers) => ({
-            ...visibleDrawers,
-            addMuscleGroup: true,
-          }))
-        }
-        type="primary"
-      >
-        Add Muscle Group
-      </Button>
-      <MuscleGroupsSection>
-        <Spin spinning={sectionsLoading.muscleGroups}>
-          <Table
-            columns={columns}
-            dataSource={muscleGroups.map((group) => ({
-              ...group,
-              key: group.muscle_group_id,
-            }))}
-            pagination={false}
-          />
-        </Spin>
-        <AddMuscleGroupDrawer
-          controlProps={{ visibleDrawers, setVisibleDrawers }}
-        />
-      </MuscleGroupsSection>
+    <Wrapper ref={wrapperRef}>
+      <Spin spinning={sectionsLoading.muscleGroups}>
+        <MuscleGroupsContainer rootHeight={testHeight}>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+          <Button
+            onClick={() =>
+              setVisibleDrawers((visibleDrawers) => ({
+                ...visibleDrawers,
+                addMuscleGroup: true,
+              }))
+            }
+          >
+            test
+          </Button>
+          <div
+            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
+          ></div>
+        </MuscleGroupsContainer>
+      </Spin>
+      <AddMuscleGroupDrawer
+        controlProps={{ visibleDrawers, setVisibleDrawers }}
+      />
     </Wrapper>
   );
 };
