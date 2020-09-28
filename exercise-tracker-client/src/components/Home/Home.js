@@ -43,84 +43,29 @@ export const Home = () => {
     }));
   }, [dispatch]);
 
+  const handleResize = () => {
+    setTestHeight(() => window.innerHeight);
+  };
+
   useEffect(() => {
     fetchMuscleGroups();
   }, [fetchMuscleGroups]);
 
   useEffect(() => {
-    console.log(window.innerHeight);
-    setTestHeight(() => window.innerHeight);
+    handleResize();
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
 
   return (
     <Wrapper rootHeight={testHeight}>
       <Spin spinning={sectionsLoading.muscleGroups}>
         <MuscleGroupsContainer rootHeight={testHeight}>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
           <Button
             onClick={() =>
               setVisibleDrawers((visibleDrawers) => ({
