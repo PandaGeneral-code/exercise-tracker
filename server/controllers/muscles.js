@@ -9,7 +9,7 @@ const addNewMuscleGroup = async (req, res, next) => {
       RETURNING *`,
       [muscleGroupName, muscleGroupAlias]
     );
-    res.status(201).json({ newExercise: response.rows[0] });
+    res.status(201).json({ newMuscleGroup: response.rows[0] });
   } catch (err) {
     next({
       ...err,
