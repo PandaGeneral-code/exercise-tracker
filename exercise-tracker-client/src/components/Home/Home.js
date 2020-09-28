@@ -1,34 +1,29 @@
-import { Button, Spin } from "antd";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Button, Card, Spin } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { AddMuscleGroupDrawer } from "./drawers/AddMuscleGroupDrawer";
 import { setMuscleGroups } from "../../store/modules/exerciseData";
-import { MuscleGroupsContainer, Wrapper } from "./styled";
+import {
+  setOrientation,
+  setMobile,
+  setRootDimensions,
+} from "../../store/modules/app";
+import { CardContainer, Wrapper } from "./styled";
 import { getMuscleGroups } from "../../utils/databaseHelpers";
-
-const columns = [
-  {
-    dataIndex: "muscle_group_name",
-    key: "muscleGroupName",
-    sorter: (a, b) => a.muscle_group_name.localeCompare(b.muscle_group_name),
-    title: "Muscle Group",
-  },
-  { dataIndex: "muscle_group_alias", key: "muscleGroupAlias", title: "Alias" },
-];
 
 export const Home = () => {
   const dispatch = useDispatch();
-  const wrapperRef = useRef();
   const { muscleGroups } = useSelector((state) => state.exerciseData);
+  const { orientation, mobile, rootDimensions } = useSelector(
+    (state) => state.app
+  );
   const [sectionsLoading, setSectionsLoading] = useState({
     muscleGroups: false,
   });
   const [visibleDrawers, setVisibleDrawers] = useState({
     addMuscleGroup: false,
   });
-
-  const [testHeight, setTestHeight] = useState(100);
 
   const fetchMuscleGroups = useCallback(async () => {
     setSectionsLoading((sectionsLoading) => ({
@@ -44,42 +39,116 @@ export const Home = () => {
   }, [dispatch]);
 
   const handleResize = () => {
-    setTestHeight(() => window.innerHeight);
+    if (!mobile) {
+      dispatch(
+        setRootDimensions({
+          height: window.innerHeight,
+          width: window.innerWidth,
+        })
+      );
+    }
+  };
+
+  const handleOrientationChange = (event) => {
+    dispatch(setOrientation(event.target.screen.orientation.angle));
+    dispatch(
+      setRootDimensions({
+        height: event.target.screen.height,
+        width: event.target.screen.width,
+      })
+    );
   };
 
   useEffect(() => {
     fetchMuscleGroups();
   }, [fetchMuscleGroups]);
 
+  const testMobile = () =>
+    dispatch(
+      setMobile(
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      )
+    );
+
   useEffect(() => {
+    testMobile();
     handleResize();
+    dispatch(setOrientation(window.screen.orientation.angle));
+    dispatch(
+      setRootDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      })
+    );
   }, []);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
     };
   });
 
+  const gridStyle = {
+    width: "50%",
+  };
+
   return (
-    <Wrapper rootHeight={testHeight}>
+    <Wrapper rootHeight={rootDimensions.height}>
       <Spin spinning={sectionsLoading.muscleGroups}>
-        <MuscleGroupsContainer rootHeight={testHeight}>
-          <Button
-            onClick={() =>
-              setVisibleDrawers((visibleDrawers) => ({
-                ...visibleDrawers,
-                addMuscleGroup: true,
-              }))
-            }
-          >
-            test
-          </Button>
-          <div
-            style={{ border: "1px solid black", height: `${testHeight / 5}px` }}
-          ></div>
-        </MuscleGroupsContainer>
+        <Button
+          onClick={() =>
+            setVisibleDrawers((visibleDrawers) => ({
+              ...visibleDrawers,
+              addMuscleGroup: true,
+            }))
+          }
+          type="primary"
+        >
+          Open Drawer
+        </Button>
+        <Card title="Display Information">
+          <Card.Grid style={gridStyle}>
+            <div>
+              <h4>Height</h4>
+              <div>{rootDimensions.height}</div>
+            </div>
+          </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <div>
+              <h4>Width</h4>
+              <div>{rootDimensions.width}</div>
+            </div>
+          </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <div>
+              <h4>Orientation</h4>
+              <div>{!orientation ? "Portrait" : "Landscape"}</div>
+            </div>
+          </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <div>
+              <h4>Mobile</h4>
+              <div>{mobile ? "Mobile" : "Not Mobile"}</div>
+            </div>
+          </Card.Grid>
+          <Card.Grid style={{ width: "100%", textAlign: "center" }}>
+            <div>
+              <h4>Random</h4>
+              <div>Hello</div>
+            </div>
+          </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <div>
+              <h4>Height</h4>
+              <div>{rootDimensions.height}</div>
+            </div>
+          </Card.Grid>
+        </Card>
       </Spin>
       <AddMuscleGroupDrawer
         controlProps={{ visibleDrawers, setVisibleDrawers }}
