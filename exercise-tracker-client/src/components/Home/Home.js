@@ -1,29 +1,28 @@
-import { Button, Card, Spin } from "antd";
+import { Button, Card, Form, Input, Spin } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { AddMuscleGroupDrawer } from "./drawers/AddMuscleGroupDrawer";
 import { setMuscleGroups } from "../../store/modules/exerciseData";
 import {
   setOrientation,
   setMobile,
   setRootDimensions,
 } from "../../store/modules/app";
-import { CardContainer, Wrapper } from "./styled";
+import { Wrapper } from "./styled";
 import { getMuscleGroups } from "../../utils/databaseHelpers";
 
 export const Home = () => {
   const dispatch = useDispatch();
+  const [addMuscleGroupForm] = Form.useForm();
   const { muscleGroups } = useSelector((state) => state.exerciseData);
-  const { orientation, mobile, rootDimensions } = useSelector(
-    (state) => state.app
-  );
+  const { mobile, rootDimensions } = useSelector((state) => state.app);
   const [sectionsLoading, setSectionsLoading] = useState({
     muscleGroups: false,
   });
-  const [visibleDrawers, setVisibleDrawers] = useState({
-    addMuscleGroup: false,
-  });
+
+  const [addMuscleGroupDialogOpen, setAddMuscleGroupDialogOpen] = useState(
+    false
+  );
 
   const fetchMuscleGroups = useCallback(async () => {
     setSectionsLoading((sectionsLoading) => ({
@@ -94,65 +93,59 @@ export const Home = () => {
   });
 
   const gridStyle = {
+    cursor: "pointer",
     width: "50%",
   };
 
   return (
     <Wrapper rootHeight={rootDimensions.height}>
       <Spin spinning={sectionsLoading.muscleGroups}>
-        <Button
-          onClick={() =>
-            setVisibleDrawers((visibleDrawers) => ({
-              ...visibleDrawers,
-              addMuscleGroup: true,
-            }))
+        <Card title="Muscle Groups">
+          {muscleGroups?.map((group) => (
+            <Card.Grid key={group.muscle_group_id} style={gridStyle}>
+              <div>
+                <h4>{group.muscle_group_name}</h4>
+                <div>{group.muscle_group_alias}</div>
+              </div>
+            </Card.Grid>
+          ))}
+        </Card>
+        <Card
+          hoverable
+          onClick={
+            addMuscleGroupDialogOpen
+              ? null
+              : () => setAddMuscleGroupDialogOpen(() => true)
           }
-          type="primary"
+          style={{ ...gridStyle, textAlign: "center" }}
         >
-          Open Drawer
-        </Button>
-        <Card title="Display Information">
-          <Card.Grid style={gridStyle}>
-            <div>
-              <h4>Height</h4>
-              <div>{rootDimensions.height}</div>
-            </div>
-          </Card.Grid>
-          <Card.Grid style={gridStyle}>
-            <div>
-              <h4>Width</h4>
-              <div>{rootDimensions.width}</div>
-            </div>
-          </Card.Grid>
-          <Card.Grid style={gridStyle}>
-            <div>
-              <h4>Orientation</h4>
-              <div>{!orientation ? "Portrait" : "Landscape"}</div>
-            </div>
-          </Card.Grid>
-          <Card.Grid style={gridStyle}>
-            <div>
-              <h4>Mobile</h4>
-              <div>{mobile ? "Mobile" : "Not Mobile"}</div>
-            </div>
-          </Card.Grid>
-          <Card.Grid style={{ width: "100%", textAlign: "center" }}>
-            <div>
-              <h4>Random</h4>
-              <div>Hello</div>
-            </div>
-          </Card.Grid>
-          <Card.Grid style={gridStyle}>
-            <div>
-              <h4>Height</h4>
-              <div>{rootDimensions.height}</div>
-            </div>
-          </Card.Grid>
+          {addMuscleGroupDialogOpen ? (
+            <>
+              <h2>New Muscle Group</h2>
+              <Form autoComplete="off" form={addMuscleGroupForm}>
+                <Form.Item name="muscleGroupName">
+                  <Input placeholder="Muscle Group Name" />
+                </Form.Item>
+                <Form.Item name="muscleGroupAlias">
+                  <Input placeholder="Muscle Group Alias" />
+                </Form.Item>
+                <Form.Item>
+                  <div>
+                    <Button
+                      onClick={() => setAddMuscleGroupDialogOpen(() => false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="primary">Save</Button>
+                  </div>
+                </Form.Item>
+              </Form>
+            </>
+          ) : (
+            <h4>Add</h4>
+          )}
         </Card>
       </Spin>
-      <AddMuscleGroupDrawer
-        controlProps={{ visibleDrawers, setVisibleDrawers }}
-      />
     </Wrapper>
   );
 };
