@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import moment from "moment";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -52,7 +53,7 @@ export const Root = () => {
         width: window.innerWidth,
       })
     );
-    dispatch(setToday(dayjs().format("MMMM D, YYYY")));
+    dispatch(setToday(moment()));
   }, [dispatch]);
 
   useEffect(() => {
