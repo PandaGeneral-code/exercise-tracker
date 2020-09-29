@@ -1,10 +1,5 @@
 import styled from "styled-components";
 
-export const CardContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 export const MuscleGroupsContainer = styled.div.attrs((props) => ({
   style: { height: props.rootHeight / 2 },
 }))`
@@ -19,7 +14,6 @@ export const Wrapper = styled.div.attrs((props) => ({
     height: props.rootHeight,
   },
 }))`
-  border: 10px solid blue;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

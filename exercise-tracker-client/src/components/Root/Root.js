@@ -1,24 +1,74 @@
-import React from "react";
-import { Provider as ReduxProvider } from "react-redux";
+import dayjs from "dayjs";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import { GlobalStyle } from "./GlobalStyle";
-import { Home } from "../Home/Home";
-import { createCleanStore } from "../../store/configureStore";
-import appReducer from "../../store/modules/app";
-import exerciseDataReducer from "../../store/modules/exerciseData";
+import {
+  setMobile,
+  setOrientation,
+  setRootDimensions,
+  setToday,
+} from "../../store/modules/app";
 
-const store = createCleanStore({
-  reducers: [
-    { reducer: appReducer, reducerName: "app" },
-    { reducer: exerciseDataReducer, reducerName: "exerciseData" },
-  ],
-});
+import { DayScreen } from "../DayScreen/DayScreen";
 
 export const Root = () => {
+  const dispatch = useDispatch();
+  const { mobile } = useSelector((state) => state.app);
+
+  const handleOrientationChange = (e) => {
+    dispatch(setOrientation(e.target.screen.orientation.angle));
+    dispatch(
+      setRootDimensions({
+        height: e.target.screen.height,
+        width: e.target.screen.width,
+      })
+    );
+  };
+
+  const handleResize = () => {
+    if (!mobile) {
+      dispatch(
+        setRootDimensions({
+          height: window.innerHeight,
+          width: window.innerWidth,
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    dispatch(
+      setMobile(
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      )
+    );
+    dispatch(setOrientation(window.screen.orientation.angle));
+    dispatch(
+      setRootDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      })
+    );
+    dispatch(setToday(dayjs().format("MMMM D, YYYY")));
+  }, [dispatch]);
+
+  useEffect(() => {
+    window.addEventListener("orientationchange", handleOrientationChange);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.addEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+
   return (
-    <ReduxProvider store={store}>
-      <GlobalStyle />
-      <Home />
-    </ReduxProvider>
+    <Router>
+      <Switch>
+        <Route component={DayScreen} path="/" />
+      </Switch>
+    </Router>
   );
 };
