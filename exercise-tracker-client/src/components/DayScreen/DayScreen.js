@@ -1,206 +1,91 @@
-import {
-  Badge,
-  Button,
-  Calendar,
-  Card,
-  Divider,
-  Drawer,
-  Dropdown,
-  Form,
-  Input,
-  Menu,
-} from "antd";
+import { Button, Dropdown, Menu } from "antd";
 import {
   CalendarOutlined,
   EllipsisOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
-import { CustomDateCell } from "./components/CustomDateCell";
+import { useDayScreenHelpers } from "./DayScreenHooks";
 import sampleWorkoutData from "./sampleWorkoutData.json";
-import { DateTextContainer, Header, RootWrapper } from "./styled";
+
+import {
+  H2,
+  Header,
+  HeaderButtonContainer,
+  HeaderTitleContainer,
+  RootWrapper,
+} from "./styled";
+
+import { AddWorkoutCommentDrawer } from "./components/drawers/AddWorkoutCommentDrawer/AddWorkoutCommentDrawer";
 
 export const DayScreen = () => {
-  const [addCommentForm] = Form.useForm();
-  const calendarContainerRef = useRef();
+  const {
+    setDrawerVisibility,
+    setExercises,
+    setSelectedDate,
+    state: { drawerVisibility, exercises, selectedDate },
+  } = useDayScreenHelpers();
   const { rootDimensions, today } = useSelector((state) => state.app);
-  const [data, setData] = useState(sampleWorkoutData);
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
 
-  const [drawerVisibility, setDrawerVisibility] = useState({
-    calendar: false,
-    comment: false,
-  });
+  const handleShowCalendar = () =>
+    setDrawerVisibility({ ...drawerVisibility, calendar: true });
 
-  const dateCellRender = (value) => {
-    const thisDate = value.date();
-    const thisDataFormatted = value.format("LL");
-    return (
-      <Badge dot={Object.keys(data).includes(thisDataFormatted)}>
-        <div>
-          {
-            <DateTextContainer
-              date={value?.format("LL")}
-              selectedDate={selectedDate?.format("LL")}
-              today={today?.format("LL")}
-            >
-              <div>{thisDate}</div>
-            </DateTextContainer>
-          }
-        </div>
-      </Badge>
-    );
-  };
-
-  const handleAddComment = (values) => {
-    const formattedSelectedData = selectedDate.format("LL");
-    if (data[formattedSelectedData]) {
-      setData((data) => ({
-        ...data,
-        [selectedDate.format("LL")]: {
-          ...data[selectedDate.format("LL")],
-          comments: [
-            values.comment,
-            ...data[selectedDate.format("LL")].comments,
-          ],
-        },
-      }));
-    } else {
-      setData((data) => ({
-        ...data,
-        [formattedSelectedData]: { comments: [values.comment] },
-      }));
-    }
-    addCommentForm.resetFields();
-    setDrawerVisibility((drawerVisibility) => ({
-      ...drawerVisibility,
-      comment: false,
-    }));
-  };
-
-  const handleCloseCalendar = () =>
-    setDrawerVisibility((drawerVisibility) => ({
-      ...drawerVisibility,
-      calendar: false,
-    }));
-
-  const handleCloseComment = () =>
-    setDrawerVisibility((drawerVisibility) => ({
-      ...drawerVisibility,
-      comment: false,
-    }));
-
-  const handleOpenCalendar = () =>
-    setDrawerVisibility((drawerVisibility) => ({
-      ...drawerVisibility,
-      calendar: true,
-    }));
-
-  const handleOpenComment = () => {
-    setIsMenuVisible(() => false);
-    setDrawerVisibility((drawerVisibility) => ({
-      ...drawerVisibility,
-      comment: true,
-    }));
-  };
+  const handleShowComment = () =>
+    setDrawerVisibility({ ...drawerVisibility, comment: true });
 
   useEffect(() => {
-    if (today) {
-      setSelectedDate(() => today);
-    }
-  }, [today]);
+    setExercises(sampleWorkoutData);
+    setSelectedDate(today);
+  }, [setExercises, setSelectedDate, today]);
 
   return (
     <RootWrapper rootDimensions={rootDimensions}>
-      <Header rootDimensions={rootDimensions}>
-        <h3>{selectedDate?.format("LL")}</h3>
-        <Button
-          icon={<CalendarOutlined />}
-          onClick={handleOpenCalendar}
-          type="text"
-        />
-        <Button icon={<PlusOutlined />} type="text" />
-        <Dropdown
-          onVisibleChange={(e) => setIsMenuVisible(() => e)}
-          overlay={
-            <Menu onClick={() => {}}>
-              <Menu.Item onClick={handleOpenComment}>Add Comment</Menu.Item>
-              <Menu.Item>Analysis</Menu.Item>
-            </Menu>
-          }
-          trigger={["click"]}
-          visible={isMenuVisible}
-        >
-          <Button icon={<EllipsisOutlined />} type="text" />
-        </Dropdown>
-      </Header>
-      {selectedDate &&
-        data[selectedDate.format("LL")].comments.map((comment) => (
-          <Card>
-            <Card.Meta description={comment} title="Comment 1" />
-          </Card>
-        ))}
-      <pre>
-        {JSON.stringify(
-          {
-            data,
-            exercises: data[selectedDate?.format("LL")],
-            selectedDate,
-            today,
-          },
-          null,
-          2
-        )}
-      </pre>
-      <Drawer
-        footer={
-          <Button onClick={() => addCommentForm.submit()} type="primary">
-            Save
-          </Button>
-        }
-        onClose={handleCloseComment}
-        placement="bottom"
-        title="Add Workout Comment"
-        visible={drawerVisibility.comment}
-      >
-        <Form form={addCommentForm} onFinish={handleAddComment}>
-          <Form.Item name="comment">
-            <Input.TextArea placeholder="Enter workout comment" rows={4} />
-          </Form.Item>
-        </Form>
-      </Drawer>
-      <Drawer
-        height={
-          calendarContainerRef?.current?.getBoundingClientRect().height + 103 ||
-          507
-        }
-        onClose={handleCloseCalendar}
-        placement="bottom"
-        title="Select Date"
-        visible={drawerVisibility.calendar}
-      >
-        <div ref={calendarContainerRef}>
-          <Calendar
-            defaultValue={today}
-            dateFullCellRender={dateCellRender}
-            fullscreen={false}
-            onChange={(e) => setSelectedDate(() => e)}
-            value={selectedDate}
-          />
-          <Divider style={{ margin: "5px" }} />
-          <Button
-            block
-            onClick={() => setSelectedDate(() => today)}
-            size="large"
-            type="link"
-          >
-            Today
-          </Button>
-        </div>
-      </Drawer>
+      {selectedDate && (
+        <>
+          <Header>
+            <HeaderTitleContainer>
+              <H2 style={{ margin: 0, padding: 0 }}>
+                {selectedDate.format("LL")}
+              </H2>
+            </HeaderTitleContainer>
+            <HeaderButtonContainer>
+              <Button
+                icon={<CalendarOutlined />}
+                onClick={handleShowCalendar}
+                size="large"
+                shape="circle"
+              />
+              <Button icon={<PlusOutlined />} size="large" shape="circle" />
+              <Dropdown
+                overlay={
+                  <Menu>
+                    <Menu.Item onClick={handleShowComment}>
+                      Add Comment
+                    </Menu.Item>
+                  </Menu>
+                }
+                trigger={["click"]}
+              >
+                <Button
+                  icon={<EllipsisOutlined />}
+                  size="large"
+                  shape="circle"
+                />
+              </Dropdown>
+            </HeaderButtonContainer>
+          </Header>
+          <AddWorkoutCommentDrawer />
+          <pre>
+            {JSON.stringify(
+              { drawerVisibility, exercises, selectedDate, today },
+              null,
+              2
+            )}
+          </pre>
+        </>
+      )}
     </RootWrapper>
   );
 };

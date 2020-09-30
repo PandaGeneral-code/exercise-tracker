@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import moment from "moment";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +10,8 @@ import {
   setToday,
 } from "../../store/modules/app";
 
-import { DayScreen } from "../DayScreen/DayScreen";
+// import { DayScreen } from "../DayScreen/DayScreen";
+import { DayScreenWrapper } from "../DayScreen/DayScreenWrapper";
 
 export const Root = () => {
   const dispatch = useDispatch();
@@ -68,7 +68,8 @@ export const Root = () => {
   return (
     <Router>
       <Switch>
-        <Route component={DayScreen} path="/" />
+        {" "}
+        <Route component={DayScreenWrapper} path="/" />{" "}
       </Switch>
     </Router>
   );
