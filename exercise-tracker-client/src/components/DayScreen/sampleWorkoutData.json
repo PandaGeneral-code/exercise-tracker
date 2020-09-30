@@ -1,8 +1,17 @@
 {
   "September 28, 2020": { "comments": [], "exercises": [] },
   "September 29, 2020": {
-    "comments": ["what is it that makes it so good."],
+    "comments": [
+      { "commentId": 1, "comment": "What it do?" },
+      { "commendId": 2, "comment": "Baby, Boo" }
+    ],
     "exercises": []
+  },
+  "September 30, 2020": {
+    "comments": [
+      { "commentBody": "YER", "commentId": 1 },
+      { "commentBody": "Number two, baby", "commentId": 2 }
+    ]
   },
   "November 20, 2021": { "comments": [], "exercises": [] }
 }
